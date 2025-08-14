@@ -22,9 +22,9 @@ match_pairs_files = glob.glob(os.path.join(match_pairs_dir, "match_pairs_*.parqu
 states = [os.path.basename(f).replace("match_pairs_", "").replace(".parquet", "") for f in match_pairs_files]
 
 if not states:
-    raise ValueError(f"❌ No match pair files found in {match_pairs_dir}")
+    raise ValueError(f" No match pair files found in {match_pairs_dir}")
 
-print(f"🔹 Found match pairs for states: {states}")
+print(f" Found match pairs for states: {states}")
 
 con = duckdb.connect(database=":memory:")
 con.execute("INSTALL spatial;")
@@ -41,13 +41,13 @@ for state in states:
     cleaned_pstl_parquet = os.path.join(cleaned_pstl_dir, f"cleanedpstl_{state}.parquet")
     output_parquet = os.path.join(output_dir, f"props_with_groupids_{state}.parquet")
 
-    print(f"🔹 Processing state: {state}")
+    print(f" Processing state: {state}")
 
     # Load match pairs using Polars
     match_pairs = pl.read_parquet(match_pairs_parquet).select(["id1", "id2"])
 
     if match_pairs.is_empty():
-        print(f"⚠️ No match pairs found for {state}. Skipping...")
+        print(f"⚠ No match pairs found for {state}. Skipping...")
         continue
 
     # Convert Polars DataFrame to NetworkX graph
@@ -60,7 +60,7 @@ for state in states:
     # Convert groups dictionary to a Polars DataFrame
     groups_df = pl.DataFrame({"id": list(groups.keys()), "groupid": list(groups.values())})
 
-    print(f"✅ Generated {len(groups_df)} property groups for {state}.")
+    print(f" Generated {len(groups_df)} property groups for {state}.")
 
     # Register Polars DataFrame into DuckDB
     con.register("groups_df", groups_df.to_pandas())  # Convert Polars DataFrame to Pandas for DuckDB
@@ -92,4 +92,4 @@ for state in states:
 
 # Close connection
 con.close()
-print("🎉 Processing complete! Grouped data is now stored in Parquet files.")
+print(" Processing complete! Grouped data is now stored in Parquet files.")
