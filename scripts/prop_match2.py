@@ -66,7 +66,7 @@ def process_match_pairs(state, cleaned_pstl_dir, output_dir, data_dir):
     con.execute(f"COPY match_pairs_p TO '{output_parquet}' (FORMAT 'parquet');")
 
     count = con.execute("SELECT COUNT(*) FROM match_pairs_p").fetchone()[0]
-    print(f"✅ {state}: wrote {count} pairs → {output_parquet}")
+    print(f" {state}: wrote {count} pairs → {output_parquet}")
     con.close()
     return state
 
@@ -88,10 +88,10 @@ if __name__ == '__main__':
     to_run = [s for s in all_states if s not in done]
 
     if not to_run:
-        print("✅ All states processed!")
+        print(" All states processed!")
         exit(0)
 
-    print(f"🔹 Parallelizing match_pairs for: {to_run}")
+    print(f" Parallelizing match_pairs for: {to_run}")
     # bind the extra args
     worker = partial(process_match_pairs,
                      cleaned_pstl_dir=cleaned_pstl_dir,
@@ -101,4 +101,4 @@ if __name__ == '__main__':
     with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as exe:
         results = list(exe.map(worker, to_run))
 
-    print("🎉 Done:", results)
+    print(" Done:", results)
