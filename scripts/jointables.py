@@ -21,9 +21,9 @@ props_files = glob.glob(os.path.join(props_with_groupids_dir, "props_with_groupi
 states = [os.path.basename(f).replace("props_with_groupids_", "").replace(".parquet", "") for f in props_files]
 
 if not states:
-    raise ValueError(f"❌ No Parquet files found in {props_with_groupids_dir}")
+    raise ValueError(f" No Parquet files found in {props_with_groupids_dir}")
 
-print(f"🔹 Found state Parquet files: {states}")
+print(f" Found state Parquet files: {states}")
 
 con = duckdb.connect(database=":memory:")
 con.execute("INSTALL spatial;")
@@ -33,22 +33,22 @@ con.execute("PRAGMA memory_limit='100GB';")
 con.execute(f"PRAGMA temp_directory='{data_dir}/duckdb_temp';")
 con.execute("PRAGMA max_temp_directory_size='500GB';")
 
-# 🚀 Step 1: Load Regional Holdings File
-print(f"📥 Loading regional holdings from: {regional_holdings_path}")
+#  Step 1: Load Regional Holdings File
+print(f" Loading regional holdings from: {regional_holdings_path}")
 con.execute(f"""
     CREATE OR REPLACE TABLE holdings AS 
     SELECT * FROM read_parquet('{regional_holdings_path}');
 """)
 
 holdings_count = con.execute("SELECT COUNT(*) FROM holdings;").fetchone()[0]
-print(f"✅ Loaded {holdings_count} regional holdings records.")
+print(f" Loaded {holdings_count} regional holdings records.")
 
-# 🚀 Step 2: Process Each State's Property Data
+#  Step 2: Process Each State's Property Data
 for state in states:
     props_parquet_path = os.path.join(props_with_groupids_dir, f"props_with_groupids_{state}.parquet")
     propsholds_parquet_path = os.path.join(propsholds_output_dir, f"propsholds_{state}.parquet")
 
-    print(f"🔹 Processing {state} from: {props_parquet_path}")
+    print(f" Processing {state} from: {props_parquet_path}")
 
     # Perform Join Against Regional Holdings
     con.execute(f"""
@@ -61,15 +61,15 @@ for state in states:
         ON t1.fips_id = t2.fips_id;
     """)
 
-    # 🚀 Step 3: Verify the Join
+    #  Step 3: Verify the Join
     joined_count = con.execute("SELECT COUNT(*) FROM propsholds;").fetchone()[0]
-    print(f"✅ Total records in `propsholds` for {state}: {joined_count}")
+    print(f" Total records in `propsholds` for {state}: {joined_count}")
 
-    # 🚀 Step 4: Save `propsholds` to Parquet
-    print(f"📁 Saving joined `propsholds` data for {state} to Parquet...")
+    #  Step 4: Save `propsholds` to Parquet
+    print(f" Saving joined `propsholds` data for {state} to Parquet...")
     con.execute(f"COPY propsholds TO '{propsholds_parquet_path}' (FORMAT 'parquet');")
-    print(f"📁 `propsholds` saved to {propsholds_parquet_path}")
+    print(f" `propsholds` saved to {propsholds_parquet_path}")
 
 # Close connection
 con.close()
-print("🎉 Processing complete! `propsholds` data saved in Parquet files.")
+print(" Processing complete! `propsholds` data saved in Parquet files.")
