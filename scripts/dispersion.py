@@ -31,7 +31,7 @@ con.execute("PRAGMA max_temp_directory_size='500GB';")
 # Step 1: Compute the envelope of parcel geometries for each holding.
 # Instead of ST_Union, we use ARRAY_AGG to aggregate all parcel geometries and then build a collection.
 # ST_Envelope returns the bounding box of that collection.
-print(f"📥 Loading property shapes from: {prop_shapes_path} and computing envelope geometry for each holding...")
+print(f" Loading property shapes from: {prop_shapes_path} and computing envelope geometry for each holding...")
 con.execute(f"""
     CREATE OR REPLACE TABLE holds_union AS
     SELECT holdid,
@@ -40,11 +40,11 @@ con.execute(f"""
     GROUP BY holdid;
 """)
 union_count = con.execute("SELECT COUNT(*) FROM holds_union;").fetchone()[0]
-print(f"✅ Computed envelope geometries for {union_count} holdings.")
+print(f" Computed envelope geometries for {union_count} holdings.")
 
 # Step 2: Calculate the bounding box diagonal (dispersion metric).
 # This calculates the distance between the lower-left and upper-right corners of the envelope.
-print("📏 Calculating bounding box diagonal (dispersion) for each holding...")
+print(" Calculating bounding box diagonal (dispersion) for each holding...")
 con.execute("DROP TABLE IF EXISTS holds_dispersion_bbox;")
 con.execute("""
     CREATE TABLE holds_dispersion_bbox AS
@@ -57,13 +57,13 @@ con.execute("""
     FROM holds_union;
 """)
 dispersion_count = con.execute("SELECT COUNT(*) FROM holds_dispersion_bbox;").fetchone()[0]
-print(f"✅ Computed dispersion for {dispersion_count} holdings.")
+print(f" Computed dispersion for {dispersion_count} holdings.")
 
 # Step 3: Save the dispersion results to a Parquet file.
-print(f"📁 Saving dispersion results to: {holds_dispersion_output_path}")
+print(f" Saving dispersion results to: {holds_dispersion_output_path}")
 con.execute(f"COPY holds_dispersion_bbox TO '{holds_dispersion_output_path}' (FORMAT 'parquet');")
-print(f"📁 Dispersion data saved successfully to {holds_dispersion_output_path}")
+print(f" Dispersion data saved successfully to {holds_dispersion_output_path}")
 
 # Close the DuckDB connection
 con.close()
-print("🎉 Processing complete! Dispersion data (based on bounding box diagonal) is now stored in a single Parquet file.")
+print(" Processing complete! Dispersion data (based on bounding box diagonal) is now stored in a single Parquet file.")
