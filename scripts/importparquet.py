@@ -13,8 +13,8 @@ os.makedirs(output_folder, exist_ok=True)
 # ── Find Parquet files ─────────────────────────────────────────────────────────
 parquet_files = glob.glob(os.path.join(input_folder, "*.parquet"))
 if not parquet_files:
-    raise ValueError(f"❌ No Parquet files found in {input_folder!r}")
-print(f"🔹 Found {len(parquet_files)} Parquet files.")
+    raise ValueError(f" No Parquet files found in {input_folder!r}")
+print(f" Found {len(parquet_files)} Parquet files.")
 
 # ── Connect to DuckDB ──────────────────────────────────────────────────────────
 con = duckdb.connect(database=":memory:")
@@ -26,7 +26,7 @@ con.execute(f"PRAGMA temp_directory='{data_dir}/duckdb_temp';")
 con.execute("PRAGMA max_temp_directory_size='500GB';")
 
 # ── Load into staging, assign numeric fileid & build new fips_id ───────────────
-print("🔄 Loading Parquet into DuckDB, tagging files with numeric IDs…")
+print(" Loading Parquet into DuckDB, tagging files with numeric IDs…")
 con.execute(f"""
 CREATE OR REPLACE TABLE parquets AS
 WITH base AS (
@@ -73,9 +73,9 @@ total    = con.execute("SELECT COUNT(*)            FROM parquets").fetchone()[0]
 distinct = con.execute("SELECT COUNT(DISTINCT fips_id) FROM parquets").fetchone()[0]
 print(f"Total rows:              {total}")
 print(f"Distinct fips_id values: {distinct}")
-assert total == distinct, "❌ fips_id still not unique!"
+assert total == distinct, " fips_id still not unique!"
 
-print("🚥 Distinct state codes and record counts:")
+print(" Distinct state codes and record counts:")
 df_states = con.execute("""
   SELECT state2, COUNT(*) AS count
   FROM parquets
@@ -98,6 +98,6 @@ for state in states:
       ) TO '{out_path}' (FORMAT 'parquet');
     """)
 
-print(f"✅ Finished writing {len(states)} partitions under {output_folder}")
+print(f" Finished writing {len(states)} partitions under {output_folder}")
 con.close()
-print("🎉 All done!")
+print(" All done!")
