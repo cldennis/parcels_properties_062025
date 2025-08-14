@@ -18,9 +18,9 @@ parquet_files = glob.glob(os.path.join(props_with_groupids_dir, "props_with_grou
 states = [os.path.basename(f).replace("props_with_groupids_", "").replace(".parquet", "") for f in parquet_files]
 
 if not states:
-    raise ValueError(f"❌ No Parquet files found in {props_with_groupids_dir}")
+    raise ValueError(f" No Parquet files found in {props_with_groupids_dir}")
 
-print(f"🔹 Found state Parquet files: {states}")
+print(f" Found state Parquet files: {states}")
 
 con = duckdb.connect(database=":memory:")
 con.execute("INSTALL spatial;")
@@ -34,7 +34,7 @@ con.execute("PRAGMA max_temp_directory_size='500GB';")
 for state in states:
     parquet_path = os.path.join(props_with_groupids_dir, f"props_with_groupids_{state}.parquet")
 
-    print(f"🔹 Processing {state} from {parquet_path}")
+    print(f" Processing {state} from {parquet_path}")
 
     # Load Parquet into DuckDB
     con.execute(f"""
@@ -42,7 +42,7 @@ for state in states:
         SELECT * FROM read_parquet('{parquet_path}');
     """)
 
-    # ✅ Directly update `propid`, do NOT create `propid_fixed`
+    #  Directly update `propid`, do NOT create `propid_fixed`
     con.execute("""
         UPDATE props_with_groupids
         SET propid = fips_id
@@ -51,13 +51,13 @@ for state in states:
 
     # Verify updates
     updated_count = con.execute("SELECT COUNT(*) FROM props_with_groupids WHERE propid = fips_id;").fetchone()[0]
-    print(f"✅ Updated {updated_count} rows where `propid` was NULL for {state}.")
+    print(f" Updated {updated_count} rows where `propid` was NULL for {state}.")
 
-    # ✅ Save directly to Parquet (overwrite)
+    #  Save directly to Parquet (overwrite)
     con.execute(f"COPY props_with_groupids TO '{parquet_path}' (FORMAT 'parquet');")
 
-    print(f"📁 Overwritten updated Parquet file: {parquet_path}")
+    print(f" Overwritten updated Parquet file: {parquet_path}")
 
 # Close connection
 con.close()
-print("🎉 Processing complete! Updated Parquet files now include corrected `propid` values.")
+print(" Processing complete! Updated Parquet files now include corrected `propid` values.")
