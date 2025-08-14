@@ -14,7 +14,7 @@ holdings_info_path = f"{data_dir}/parquet/{region}/{region}_holdings/holdings_in
 # Ensure output directory exists
 os.makedirs(os.path.dirname(holdings_info_path), exist_ok=True)
 
-# ✅ Connect to DuckDB using on-disk storage for stability
+# Connect to DuckDB using on-disk storage for stability
 duckdb_file = f"{data_dir}/duckdb_temp/region_{region}.duckdb"
 os.makedirs(f"{data_dir}/duckdb_temp", exist_ok=True)
 
@@ -26,18 +26,18 @@ con.execute("PRAGMA memory_limit='100GB';")
 con.execute(f"PRAGMA temp_directory='{data_dir}/duckdb_temp';")
 con.execute("PRAGMA max_temp_directory_size='500GB';")
 
-# 🚀 Step 1: Load `prop_shapes.parquet`
-print(f"📥 Loading property shapes from: {prop_shapes_path}")
+#  Step 1: Load `prop_shapes.parquet`
+print(f" Loading property shapes from: {prop_shapes_path}")
 con.execute(f"""
     CREATE OR REPLACE TABLE prop_shapes AS 
     SELECT * FROM read_parquet('{prop_shapes_path}');
 """)
 
 prop_shapes_count = con.execute("SELECT COUNT(*) FROM prop_shapes;").fetchone()[0]
-print(f"✅ Loaded {prop_shapes_count} property shape records.")
+print(f" Loaded {prop_shapes_count} property shape records.")
 
-# 🚀 Step 2: Compute Holdings Information
-print("🏡 Aggregating holdings information...")
+#  Step 2: Compute Holdings Information
+print(" Aggregating holdings information...")
 
 con.execute("""
     CREATE OR REPLACE TABLE holdings_info AS
@@ -50,16 +50,16 @@ con.execute("""
     GROUP BY holdid;
 """)
 
-# 🚀 Step 3: Verify Holdings Data
+#  Step 3: Verify Holdings Data
 holdings_count = con.execute("SELECT COUNT(*) FROM holdings_info;").fetchone()[0]
-print(f"✅ Total records in holdings_info: {holdings_count}")
+print(f" Total records in holdings_info: {holdings_count}")
 
-# 🚀 Step 4: Save Holdings Info to Parquet
-print(f"📁 Saving holdings info to: {holdings_info_path}...")
+#  Step 4: Save Holdings Info to Parquet
+print(f" Saving holdings info to: {holdings_info_path}...")
 con.execute(f"COPY holdings_info TO '{holdings_info_path}' (FORMAT 'parquet');")
 
-print(f"📁 `holdings_info` saved successfully to {holdings_info_path}")
+print(f" `holdings_info` saved successfully to {holdings_info_path}")
 
 # Close connection
 con.close()
-print("🎉 Processing complete! `holdings_info` is now stored in a single Parquet file.")
+print(" Processing complete! `holdings_info` is now stored in a single Parquet file.")
