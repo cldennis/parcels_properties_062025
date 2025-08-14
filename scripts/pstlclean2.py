@@ -98,7 +98,7 @@ def process_state(state, input_folder, output_folder, data_dir):
         # Save cleaned data as Parquet, preserving all original columns
         df.to_parquet(output_parquet, index=False)
         con.close()
-        print(f"📁 Saved cleaned data to {output_parquet} for state {state}")
+        print(f" Saved cleaned data to {output_parquet} for state {state}")
         return state
     except Exception as e:
         print(f"Error processing state {state}: {e}")
@@ -121,12 +121,12 @@ if __name__ == '__main__':
     states = [os.path.basename(f).replace("concatpstl_", "").replace(".parquet", "") for f in parquet_files]
 
     if not states:
-        raise ValueError(f"❌ No Parquet state files found in {input_folder}")
+        raise ValueError(f" No Parquet state files found in {input_folder}")
 
-    print(f"🔹 Found Parquet files for states: {states}")
+    print(f" Found Parquet files for states: {states}")
 
     from concurrent.futures import ProcessPoolExecutor
     with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         results = list(executor.map(process_state_wrapper, states))
 
-    print("🎉 Processing complete! Processed states:", results)
+    print(" Processing complete! Processed states:", results)
