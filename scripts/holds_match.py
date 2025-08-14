@@ -18,9 +18,9 @@ os.makedirs(os.path.dirname(holdings_output_file), exist_ok=True)
 parquet_files = glob.glob(os.path.join(props_with_groupids_dir, "props_with_groupids_*.parquet"))
 
 if not parquet_files:
-    raise ValueError(f"❌ No Parquet files found in {props_with_groupids_dir}")
+    raise ValueError(f" No Parquet files found in {props_with_groupids_dir}")
 
-print(f"🔹 Found {len(parquet_files)} state Parquet files. Processing entire region...")
+print(f" Found {len(parquet_files)} state Parquet files. Processing entire region...")
 
 con = duckdb.connect(database=":memory:")
 con.execute("INSTALL spatial;")
@@ -31,16 +31,16 @@ con.execute(f"PRAGMA temp_directory='{data_dir}/duckdb_temp';")
 con.execute("PRAGMA max_temp_directory_size='500GB';")
 
 
-# 🚀 Step 1: Load all state Parquet files into a single DuckDB table
-print("📥 Loading all Parquet files into a single table...")
+#  Step 1: Load all state Parquet files into a single DuckDB table
+print(" Loading all Parquet files into a single table...")
 
 con.execute(f"""
     CREATE OR REPLACE TABLE props_with_groupids AS 
     SELECT * FROM read_parquet({parquet_files}, union_by_name=True);
 """)
 
-# 🚀 Step 5: Compute `holdid` at the **regional level** across all states
-print("🏡 Computing holdings at the regional level...")
+#  Step 5: Compute `holdid` at the **regional level** across all states
+print(" Computing holdings at the regional level...")
 
 con.execute("""
     CREATE OR REPLACE TABLE holdings_temp AS 
@@ -66,15 +66,15 @@ con.execute("""
     FROM propid_grouping;
 """)
 
-# 🚀 Step 3: Verify holdings
+# Step 3: Verify holdings
 grouped_count = con.execute("SELECT COUNT(*) FROM holdings_temp;").fetchone()[0]
-print(f"✅ Total records in `holdings_temp`: {grouped_count}")
+print(f" Total records in `holdings_temp`: {grouped_count}")
 
-# 🚀 Step 4: Save Holdings Data to a single Parquet file
-print(f"📁 Saving regional holdings data to {holdings_output_file}...")
+# Step 4: Save Holdings Data to a single Parquet file
+print(f" Saving regional holdings data to {holdings_output_file}...")
 con.execute(f"COPY holdings_temp TO '{holdings_output_file}' (FORMAT 'parquet');")
-print(f"📁 Regional holdings saved to {holdings_output_file}")
+print(f" Regional holdings saved to {holdings_output_file}")
 
 # Close connection
 con.close()
-print("🎉 Processing complete! Regional holdings data is now stored in a single Parquet file.")
+print(" Processing complete! Regional holdings data is now stored in a single Parquet file.")
