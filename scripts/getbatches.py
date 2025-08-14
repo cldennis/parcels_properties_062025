@@ -17,8 +17,8 @@ os.makedirs(prop_shapes_output_dir, exist_ok=True)
 # Get list of all state-level `propsholds` Parquet files
 propsholds_files = glob.glob(os.path.join(propsholds_dir, "propsholds_*.parquet"))
 if not propsholds_files:
-    raise ValueError(f"❌ No Parquet files found in {propsholds_dir}")
-print(f"🔹 Found {len(propsholds_files)} state Parquet files. Processing entire region...")
+    raise ValueError(f" No Parquet files found in {propsholds_dir}")
+print(f" Found {len(propsholds_files)} state Parquet files. Processing entire region...")
 
 con = duckdb.connect(database=":memory:")
 con.execute("INSTALL spatial;")
@@ -29,8 +29,8 @@ con.execute(f"PRAGMA temp_directory='{data_dir}/duckdb_temp';")
 con.execute("PRAGMA max_temp_directory_size='500GB';")
 
 
-# 🚀 Step 1: Load All State Properties into DuckDB
-print("📥 Loading all state propsholds files into a single table...")
+#  Step 1: Load All State Properties into DuckDB
+print(" Loading all state propsholds files into a single table...")
 con.execute(f"""
     CREATE OR REPLACE TABLE propsholds AS 
     SELECT 
@@ -41,10 +41,10 @@ con.execute(f"""
     FROM read_parquet([{', '.join(f"'{f}'" for f in propsholds_files)}]);
 """)
 propsholds_count = con.execute("SELECT COUNT(*) FROM propsholds;").fetchone()[0]
-print(f"✅ Loaded {propsholds_count} property records.")
+print(f" Loaded {propsholds_count} property records.")
 
-# 🚀 Step 2: Compute Decile-Based Batch Ranges **in DuckDB**
-print("📊 Computing decile-based batch ranges across the entire region...")
+#  Step 2: Compute Decile-Based Batch Ranges **in DuckDB**
+print(" Computing decile-based batch ranges across the entire region...")
 
 decile_query = """
 WITH propid_numeric AS (
@@ -79,9 +79,9 @@ batch_ranges = [
     for i in range(len(deciles) - 1)
     if int(deciles[i]) < int(deciles[i + 1])
 ]
-print(f"✅ Batch Ranges for the entire region: {batch_ranges}")
+print(f" Batch Ranges for the entire region: {batch_ranges}")
 
-# 🚀 Step 3: **Ensure `prop_shapes` table exists before inserting**
+#  Step 3: **Ensure `prop_shapes` table exists before inserting**
 con.execute("DROP TABLE IF EXISTS prop_shapes;")
 con.execute("""
 CREATE TABLE prop_shapes (
@@ -92,16 +92,16 @@ CREATE TABLE prop_shapes (
     num_parcels INTEGER
 );
 """)
-print("✅ Created `prop_shapes` table.")
+print(" Created `prop_shapes` table.")
 
-# 🚀 Step 4: Process Each Batch and Insert into `prop_shapes`
+#  Step 4: Process Each Batch and Insert into `prop_shapes`
 for lo, hi in batch_ranges:
     count = con.execute(f"""
         SELECT COUNT(*) FROM propsholds 
         WHERE TRY_CAST(REPLACE(propid, ' ', '') AS BIGINT) BETWEEN {lo} AND {hi};
     """).fetchone()[0]
 
-    print(f"🔍 Checking batch {lo} to {hi}: {count} matching records")
+    print(f" Checking batch {lo} to {hi}: {count} matching records")
 
     if count == 0:
         continue  # Skip batches with no matching records
@@ -127,13 +127,13 @@ for lo, hi in batch_ranges:
     FROM collected;
     """)
 
-    print(f"✅ Batch {lo} to {hi} inserted into `prop_shapes`.")
+    print(f" Batch {lo} to {hi} inserted into `prop_shapes`.")
 
-# 🚀 Step 5: Save `prop_shapes` to Parquet
+#  Step 5: Save `prop_shapes` to Parquet
 prop_shapes_parquet_path = os.path.join(prop_shapes_output_dir, f"prop_shapes_{region}.parquet")
 con.execute(f"COPY prop_shapes TO '{prop_shapes_parquet_path}' (FORMAT 'parquet');")
-print(f"📁 `prop_shapes` saved to {prop_shapes_parquet_path}")
+print(f" `prop_shapes` saved to {prop_shapes_parquet_path}")
 
 # Close the connection
 con.close()
-print("🎉 Processing complete! `prop_shapes` data saved as a single regional Parquet file.")
+print(" Processing complete! `prop_shapes` data saved as a single regional Parquet file.")
