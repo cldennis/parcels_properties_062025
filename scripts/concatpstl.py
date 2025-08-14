@@ -19,7 +19,7 @@ parquet_files = glob.glob(os.path.join(input_folder, "parquets_*.parquet"))
 states = [os.path.basename(f).replace("parquets_", "").replace(".parquet", "") for f in parquet_files]
 
 if not states:
-    raise ValueError(f"❌ No Parquet state files found in {input_folder}")
+    raise ValueError(f"No Parquet state files found in {input_folder}")
 
 print(f"🔹 Found partitioned Parquet files for states: {states}")
 
@@ -83,11 +83,11 @@ for state in states:
 
     # Verify row count
     row_count = con.execute("SELECT COUNT(*) FROM test_concat;").fetchone()[0]
-    print(f"✅ Processed {row_count} rows for {state}")
+    print(f"Processed {row_count} rows for {state}")
 
     # Save processed data as Parquet
     con.execute(f"COPY test_concat TO '{output_parquet}' (FORMAT 'parquet');")
-    print(f"📁 Saved processed data to {output_parquet}")
+    print(f"Saved processed data to {output_parquet}")
 
 # Close connection
 con.close()
