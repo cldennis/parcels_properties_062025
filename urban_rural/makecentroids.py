@@ -3,7 +3,7 @@ import duckdb
 from pathlib import Path
 
 # Base folder for your state Parquets
-BASE = Path("/home/christina/Desktop/property-matching/regrid_2025/parquet")
+BASE = Path("/home/christina/Desktop/property-matching/regrid_2025/parquet/UPDATE_SEPTEMBER/parquet")
 
 # Region‐state pairs
 JOBS = [

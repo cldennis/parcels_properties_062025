@@ -3,8 +3,8 @@ import geopandas as gpd
 from pathlib import Path
 
 # 1. Paths
-shp_fp   = Path("/home/christina/Desktop/data/Census_UrbanAreas/tl_2024_us_uac20.shp")
-out_fp   = Path("/home/christina/Desktop/data/Census_UrbanAreas/urban_5070.parquet")
+shp_fp   = Path("/home/christina/Desktop/data/census/urban/tl_2024_us_uac20.shp")
+out_fp   = Path("/home/christina/Desktop/data/census/urban/urban_5070.parquet")
 
 # 2. Read & reproject
 urban = gpd.read_file(shp_fp)

@@ -5,11 +5,13 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 
 # Base data directory
-DATA_DIR="/home/christina/Desktop/test/test2"
+DATA_DIR="/home/christina/Desktop/property-matching/regrid_2025/parquet/UPDATE_SEPTEMBER"
 export DATA_DIR
 
 # List of regions
-REGIONS=("west", "midwest", "")
+REGIONS=("midwest")
+
+#REGIONS=("west", "midwest", "south", "northeast")
 
 for REGION in "${REGIONS[@]}"; do
     export REGION
@@ -21,6 +23,7 @@ for REGION in "${REGIONS[@]}"; do
 #    python3 "scripts/prop_match2.py"
 #    python3 "scripts/prop_groupmatch.py"
 #    python3 "scripts/prop_setnullgroupid.py"
+### September 4th -- updated from here for all regions
     python3 "scripts/holds_match.py"
     python3 "scripts/jointables.py"
     python3 "scripts/getbatches.py"
@@ -28,7 +31,7 @@ for REGION in "${REGIONS[@]}"; do
     python3 "scripts/dispersion.py"
     python3 "scripts/joinzipcode.py"
     python3 "scripts/localzip.py"
-    python3 "scripts/addattributes.py"
+#    python3 "scripts/addattributes.py"
     python3 "scripts/countchecks.py"
 
   echo "✅ Finished REGION: $REGION"

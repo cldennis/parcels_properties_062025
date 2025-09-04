@@ -3,7 +3,7 @@ import duckdb
 from pathlib import Path
 
 # ——— CONFIGURATION ———
-BASE_DIR = Path("/home/christina/Desktop/property-matching/regrid_2025/parquet")
+BASE_DIR = Path("/home/christina/Desktop/property-matching/regrid_2025/parquet/UPDATE_SEPTEMBER/parquet")
 REGIONS  = ["midwest", "south", "northeast", "west"]
 
 # Connect to DuckDB (in‑memory)

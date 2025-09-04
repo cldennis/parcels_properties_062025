@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import duckdb, os, glob
 
-BASE_DIR      = '/home/christina/Desktop/property-matching/regrid_2025/parquet'
+BASE_DIR      = '/home/christina/Desktop/property-matching/regrid_2025/parquet/UPDATE_SEPTEMBER/parquet'
 URBAN_PARQUET = '/home/christina/Desktop/data/census/urban/urban_5070.parquet'
 REGIONS       = ['midwest','west','south','northeast']
 
