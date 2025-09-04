@@ -4,8 +4,8 @@ import glob
 import multiprocessing
 
 # Get environment variables
-region = os.getenv("REGION")
-data_dir = os.getenv("DATA_DIR")
+region = os.getenv("REGION", 'west')
+data_dir = os.getenv("DATA_DIR", '/home/christina/Desktop/test/test2')
 
 # Define paths for input/output
 props_with_groupids_dir = f"{data_dir}/parquet/{region}/{region}_props_with_groupids"
@@ -41,29 +41,24 @@ con.execute(f"""
 
 # 🚀 Step 5: Compute `holdid` at the **regional level** across all states
 print("🏡 Computing holdings at the regional level...")
-
 con.execute("""
-    CREATE OR REPLACE TABLE holdings_temp AS 
-    WITH propid_grouping AS (
-        SELECT 
-            fips_id,  
-            propid, 
-            MIN(holdid) OVER (PARTITION BY propid) AS grouped_holdid
-        FROM (
-            SELECT 
-                fips_id, 
-                propid, 
-                CASE 
-                    WHEN TRIM(pstlclean) <> '' AND TRIM(mailadd) <> '' 
-                    THEN MIN(propid) OVER (PARTITION BY pstlclean)
-                    ELSE NULL
-                END AS holdid        
-            FROM props_with_groupids
-        ) sub
-    )
-    SELECT DISTINCT fips_id, propid, 
-        COALESCE(grouped_holdid, propid) AS holdid  -- Ensure no NULL holdids
-    FROM propid_grouping;
+CREATE OR REPLACE TABLE _props_norm AS
+SELECT
+  *,
+  NULLIF(REGEXP_REPLACE(UPPER(pstlclean),'[^A-Z0-9]','','g'),'') AS addr_key
+FROM props_with_groupids;
+
+""")
+con.execute("""
+CREATE OR REPLACE TABLE holdings_temp AS
+SELECT
+  fips_id,
+  propid,
+  COALESCE(
+    MIN(propid) OVER (PARTITION BY addr_key),
+    propid
+  ) AS holdid
+FROM _props_norm;
 """)
 
 # 🚀 Step 3: Verify holdings

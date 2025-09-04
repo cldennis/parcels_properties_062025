@@ -1,0 +1,10 @@
+pandas
+geopandas
+sqlalchemy
+duckdb
+networkx
+rapidfuzz
+pyarrow
+dask-geopandas
+requests
+polars
