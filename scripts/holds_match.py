@@ -42,10 +42,18 @@ con.execute("""
 CREATE OR REPLACE TABLE _prop_addr AS
 SELECT DISTINCT
   propid,
-  REGEXP_REPLACE(UPPER(pstlclean),'[^A-Z0-9]','','g') AS addr_key
+  NULLIF(
+    REGEXP_REPLACE(UPPER(pstlclean), '[^A-Z0-9]', '', 'g'),
+    ''
+  ) AS addr_key
 FROM props_with_groupids
-WHERE pstlclean IS NOT NULL
-  AND TRIM(mailadd) <> '';
+WHERE
+  -- pstlclean not null/empty
+  NULLIF(TRIM(pstlclean), '') IS NOT NULL
+  -- mailadd not null/empty
+  AND NULLIF(TRIM(mailadd), '') IS NOT NULL
+  -- must contain at least one digit (street number heuristic)
+  AND REGEXP_MATCHES(UPPER(mailadd), '.*[0-9].*');
 """)
 
 # Optional peek at top addresses
