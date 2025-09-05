@@ -9,7 +9,7 @@ DATA_DIR="/home/christina/Desktop/property-matching/regrid_2025/parquet/UPDATE_S
 export DATA_DIR
 
 # List of regions
-REGIONS=("south")
+REGIONS=("northeast")
 
 #REGIONS=("west", "midwest", "south", "northeast")
 
