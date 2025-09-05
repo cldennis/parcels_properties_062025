@@ -4,8 +4,8 @@ import glob
 import multiprocessing
 
 # Get environment variables
-region = os.getenv("REGION", "northeast")
-data_dir = os.getenv("DATA_DIR", "/home/christina/Desktop/property-matching/regrid_2025/parquet/UPDATE_SEPTEMBER")
+region = os.getenv("REGION")
+data_dir = os.getenv("DATA_DIR")
 
 # Define paths for input/output
 props_with_groupids_dir = f"{data_dir}/parquet/{region}/{region}_props_with_groupids"
